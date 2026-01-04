@@ -5,8 +5,9 @@ A simple Python Flask web application demonstrating SBOM (Software Bill of Mater
 ## Features
 
 - **Flask Web Application**: A minimal Flask web app with basic endpoints
-- **Authlib Integration**: Demonstrates OAuth integration setup using Authlib
+- **Authlib Integration**: OAuth client setup ready for integration with providers like Google, GitHub, etc.
 - **Automated SBOM Generation**: GitHub Actions workflow that automatically generates CycloneDX SBOM files
+- **Security Best Practices**: Environment-based configuration and secure secret key generation
 
 ## Project Structure
 
@@ -57,7 +58,7 @@ FLASK_DEBUG=true python app.py
 
 ### Environment Variables
 
-- `SECRET_KEY`: Set a secure secret key for Flask sessions (required for production)
+- `SECRET_KEY`: Set a secure secret key for Flask sessions (optional - auto-generated if not provided)
 - `FLASK_DEBUG`: Set to `true` to enable debug mode (default: `false`)
 
 Example:
@@ -67,6 +68,17 @@ export SECRET_KEY="your-secure-random-secret-key"
 export FLASK_DEBUG="false"
 python app.py
 ```
+
+### OAuth Configuration
+
+The application includes Authlib OAuth client setup. To configure an OAuth provider (e.g., Google, GitHub):
+
+1. Uncomment and configure the OAuth provider in `app.py`
+2. Set up your OAuth application credentials with your chosen provider
+3. Add the client ID and secret to the configuration
+4. Implement OAuth callback routes as needed
+
+Example configuration is provided in `app.py` for reference.
 
 ### Available Endpoints
 
