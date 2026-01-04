@@ -39,11 +39,34 @@ A simple Python Flask web application demonstrating SBOM (Software Bill of Mater
 
 ## Running the Application
 
+Start the Flask application:
+
 ```bash
 python app.py
 ```
 
 The application will start on `http://localhost:5000`.
+
+For development with debug mode enabled:
+
+```bash
+FLASK_DEBUG=true python app.py
+```
+
+**Security Note**: The debug mode should never be enabled in production as it can expose sensitive information.
+
+### Environment Variables
+
+- `SECRET_KEY`: Set a secure secret key for Flask sessions (required for production)
+- `FLASK_DEBUG`: Set to `true` to enable debug mode (default: `false`)
+
+Example:
+
+```bash
+export SECRET_KEY="your-secure-random-secret-key"
+export FLASK_DEBUG="false"
+python app.py
+```
 
 ### Available Endpoints
 
@@ -69,7 +92,7 @@ This will create a `sbom.json` file containing a complete inventory of all proje
 
 - **Flask 3.0.0**: Web framework
 - **Authlib 1.3.0**: OAuth library for authentication
-- **Werkzeug 3.0.1**: WSGI utility library
+- **Werkzeug 3.0.3**: WSGI utility library (patched version)
 - **requests 2.31.0**: HTTP library
 
 ## GitHub Actions Workflow

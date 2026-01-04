@@ -1,8 +1,9 @@
-from flask import Flask, jsonify, session, redirect, url_for
+import os
+from flask import Flask, jsonify
 from authlib.integrations.flask_client import OAuth
 
 app = Flask(__name__)
-app.secret_key = 'development-secret-key-change-in-production'
+app.secret_key = os.environ.get('SECRET_KEY', 'development-secret-key-change-in-production')
 
 # Configure OAuth (basic setup for demonstration)
 oauth = OAuth(app)
@@ -28,4 +29,5 @@ def health():
     })
 
 if __name__ == '__main__':
-    app.run(host='0.0.0.0', port=5000, debug=True)
+    debug_mode = os.environ.get('FLASK_DEBUG', 'False').lower() == 'true'
+    app.run(host='0.0.0.0', port=5000, debug=debug_mode)
