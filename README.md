@@ -32,8 +32,8 @@ The `.github/workflows/sbom.yml` workflow:
 3. Installs dependencies from `requirements.txt`
 4. Generates a CycloneDX SBOM
 5. Signs the SBOM using STaaS
-6. Signs the SBOM using cosign
-7. Uploads the SBOM as a workflow artifact
+6. Uploads the SBOM as a workflow artifact
+7. If a tag is included is provided with the push, a new release is created that includes the generated SBOM file and bundle
 
 The generated SBOM is retained for 90 days and can be downloaded from the Actions tab.
 
