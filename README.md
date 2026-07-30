@@ -42,3 +42,8 @@ Fork the repository. Create a free account in [STaaS](https://staas.excid.io/)
 and generate an API token. Then, navigate in your repository, go to Settings,
 Secrets and variables, Actions and set a new Repository secret with name `STAAS_API_KEY` 
 
+Create a release by pushing a tag:
+```
+git tag v1.0.0
+git push origin v1.0.0
+```

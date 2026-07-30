@@ -3,6 +3,7 @@ name: Generate SBOM
 on:
   push:
     branches: [ main, master ]
+    tags: [ 'v*' ]
   pull_request:
     branches: [ main, master ]
   workflow_dispatch:
@@ -40,7 +41,7 @@ jobs:
         run: |
           HASH_HEX=$(sha256sum sbom.json | cut -d ' ' -f1)
 
-          curl -X POST "https://staas.excid.io/API/Sign" \
+          curl -X POST "https://sign.excid.io/API/Sign" \
             -H "Authorization: Bearer ${{ secrets.STAAS_API_KEY }}" \
             -H "Content-Type: application/json" \
             -d @- \
@@ -51,33 +52,57 @@ jobs:
           }
           JSON
 
-      - name: Install Cosign
-        uses: sigstore/cosign-installer@v4.0.0
-      - name: Check install!
-        run: cosign version
-
-      - name: Sign SBOM (cosign)
-        run: |
-          cosign sign-blob --yes  --bundle cosign.bundle.json sbom.json
-            
-      
-      - name: Upload SBOM as artifact
-        uses: actions/upload-artifact@v4
-        with:
-          name: sbom
-          path: sbom.json
-          retention-days: 90
-
-      - name: Upload signature bundle as artifact
-        uses: actions/upload-artifact@v4
-        with:
-          name: cosign.bundle.json
-          path: cosign.bundle.json
-          retention-days: 90
-
-      - name: Upload cosign signature as artifact
+      - name: Upload CRACY signature as artifact
         uses: actions/upload-artifact@v4
         with:
           name: staas.bundle.json
           path: staas.bundle.json
           retention-days: 90
+
+      - name: Upload release assets
+        if: startsWith(github.ref, 'refs/tags/')
+        uses: actions/upload-artifact@v4
+        with:
+          name: release-assets
+          path: |
+            app.py
+            sbom.json
+            staas.bundle.json
+          retention-days: 1
+
+  create-release:
+    if: startsWith(github.ref, 'refs/tags/')
+    needs: generate-sbom
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+
+    steps:
+      - name: Download release assets
+        uses: actions/download-artifact@v4
+        with:
+          name: release-assets
+          path: release-assets
+
+      - name: Create or update GitHub Release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        shell: bash
+        run: |
+          if gh release view "${GITHUB_REF_NAME}" \
+            --repo "${GITHUB_REPOSITORY}" > /dev/null 2>&1; then
+            gh release upload "${GITHUB_REF_NAME}" \
+              release-assets/app.py \
+              release-assets/sbom.json \
+              release-assets/staas.bundle.json \
+              --clobber \
+              --repo "${GITHUB_REPOSITORY}"
+          else
+            gh release create "${GITHUB_REF_NAME}" \
+              release-assets/app.py \
+              release-assets/sbom.json \
+              release-assets/staas.bundle.json \
+              --generate-notes \
+              --verify-tag \
+              --repo "${GITHUB_REPOSITORY}"
+          fi
